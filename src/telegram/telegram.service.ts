@@ -84,7 +84,9 @@ export class TelegramService extends Telegraf<Context> {
   async getCurrencyCoins(@Ctx() ctx: Context) {
     const currentDate = this.getCurrentDateMSK(null);
     const currencyList = await this.cryptoService.getCryproCoinsList();
-    await ctx.replyWithHTML(`<b>Стоимоить монет на ${currentDate}</b>`);
+    await ctx.replyWithHTML(
+      `<b>Стоимоить монет на ${currentDate} (МСК) 🕔</b>`,
+    );
     await ctx.reply(currencyList.toString());
   }
 
@@ -109,8 +111,8 @@ export class TelegramService extends Telegraf<Context> {
       `<b>Название: ${coin.name} / ${coin.symbol} 🪙</b>
 <b>Цена в USD (точная): ${coin.quote.USD.price}💲</b>,
 <b>Цена в USD (округленная): ${Math.round(coin.quote.USD.price)}💲</b>,
-<b>Дата последнего обновления монеты: ${dateCoinUpd} 🕔</b>,
-<b>Дата старта монеты: ${startCoinDate} 🕔</b>`,
+<b>Дата последнего обновления монеты: ${dateCoinUpd} (МСК) 🕔</b>,
+<b>Дата старта монеты: ${startCoinDate} (МСК) 🕔</b>`,
     );
   }
 
