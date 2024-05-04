@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Markup, Scenes, Telegraf } from 'telegraf';
-import { Update, Ctx, Start, Help, On, Hears } from 'nestjs-telegraf';
+import { Update, Ctx, Start, On, Hears } from 'nestjs-telegraf';
 import { CryptoService } from 'src/crypto/crypto.service';
 import { ConfigService } from '@nestjs/config';
+import { toZonedTime, format } from 'date-fns-tz';
 
 type Context = Scenes.SceneContext;
 
@@ -81,12 +82,9 @@ export class TelegramService extends Telegraf<Context> {
 
   @Hears('Монеты')
   async getCurrencyCoins(@Ctx() ctx: Context) {
-    const date = new Date();
-
+    const currentDate = this.getCurrentDateMSK(null);
     const currencyList = await this.cryptoService.getCryproCoinsList();
-    await ctx.replyWithHTML(
-      `<b>Стоимоить монет на ${date.getDay()}.${date.getMonth()}.${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}</b>`,
-    );
+    await ctx.replyWithHTML(`<b>Стоимоить монет на ${currentDate}</b>`);
     await ctx.reply(currencyList.toString());
   }
 
@@ -104,15 +102,33 @@ export class TelegramService extends Telegraf<Context> {
   }
 
   private async currentCoinInfoPresent(coin, ctx: Context) {
-    const dateCoinUpd = new Date(coin.last_updated);
-    const startCoinDate = new Date(coin.date_added);
+    const dateCoinUpd = this.getCurrentDateMSK(coin.last_updated);
+    const startCoinDate = this.getCurrentDateMSK(coin.date_added);
 
     await ctx.replyWithHTML(
       `<b>Название: ${coin.name} / ${coin.symbol} 🪙</b>
 <b>Цена в USD (точная): ${coin.quote.USD.price}💲</b>,
 <b>Цена в USD (округленная): ${Math.round(coin.quote.USD.price)}💲</b>,
-<b>Дата последнего обновления монеты: ${dateCoinUpd.getFullYear()}.${dateCoinUpd.getMonth()}.${dateCoinUpd.getDay()}🕔</b>,
-<b>Дата старта монеты: ${startCoinDate.getFullYear()}.${startCoinDate.getMonth()}.${startCoinDate.getDay()}🕔</b>`,
+<b>Дата последнего обновления монеты: ${dateCoinUpd} 🕔</b>,
+<b>Дата старта монеты: ${startCoinDate} 🕔</b>`,
     );
+  }
+
+  private getCurrentDateMSK(time: string | null | undefined): string {
+    let date: Date;
+
+    if (!time) {
+      date = new Date();
+    } else {
+      date = new Date(time);
+    }
+
+    const timeZone = 'Europe/Moscow';
+    const zonedDate = toZonedTime(date, timeZone);
+
+    const pattern = 'dd.MM.yyyy HH:mm:ss';
+    const output = format(zonedDate, pattern, { timeZone: timeZone });
+
+    return output;
   }
 }
