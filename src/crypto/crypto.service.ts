@@ -39,7 +39,7 @@ export class CryptoService {
       });
 
       for (const el of data.data) {
-        if (el.name === coin) {
+        if (el.symbol.toLowerCase() === coin) {
           return el;
         }
       }
