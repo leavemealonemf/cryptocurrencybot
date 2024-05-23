@@ -5,6 +5,8 @@ import axios from 'axios';
 const CRYPTO_API_ENDPOINTS = {
   coinListLatest:
     'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest',
+  coinListLatestFive:
+    'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?limit=5',
   fiveCoins:
     'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?limit=5',
 };
@@ -14,6 +16,26 @@ export class CryptoService {
   private readonly logger = new Logger(CryptoService.name);
 
   constructor(private readonly configService: ConfigService) {}
+
+  async getUnformattedCryproCoinsList() {
+    try {
+      const { data } = await axios.get(
+        CRYPTO_API_ENDPOINTS.coinListLatestFive,
+        {
+          headers: {
+            'X-CMC_PRO_API_KEY': this.configService.get(
+              'COIN_MARKET_API_TOKEN',
+            ),
+          },
+        },
+      );
+
+      return data;
+    } catch (error) {
+      this.logger.error(error);
+      throw new Error('Cannot get cryto coins list!');
+    }
+  }
 
   async getCryproCoinsList() {
     try {
