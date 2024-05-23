@@ -67,15 +67,7 @@ export class TelegramService extends Telegraf<Context> {
 
   @Action('target-coins')
   async getTargetCoinsList(@Ctx() ctx: Context) {
-    await ctx.replyWithHTML(
-      `<b>Выбери монету по которой хочешь узнать подробную информацию🪙</b>`,
-      Markup.inlineKeyboard([
-        Markup.button.callback('Bitcoin', 'btc'),
-        Markup.button.callback('Ethereum', 'eth'),
-        Markup.button.callback('Solana', 'sol'),
-        Markup.button.callback('В меню', 'menu'),
-      ]),
-    );
+    return this.sendTargetCoinsList(ctx);
   }
 
   @Command(COMMANDS_LIST.COINS)
@@ -104,6 +96,18 @@ export class TelegramService extends Telegraf<Context> {
       Markup.inlineKeyboard([
         Markup.button.callback('Все монеты', 'coins'),
         Markup.button.callback('Конкретные монеты', 'target-coins'),
+      ]),
+    );
+  }
+
+  private async sendTargetCoinsList(ctx: Context) {
+    await ctx.replyWithHTML(
+      `<b>Выбери монету по которой хочешь узнать подробную информацию🪙</b>`,
+      Markup.inlineKeyboard([
+        Markup.button.callback('Bitcoin', 'btc'),
+        Markup.button.callback('Ethereum', 'eth'),
+        Markup.button.callback('Solana', 'sol'),
+        Markup.button.callback('В меню', 'menu'),
       ]),
     );
   }
